@@ -68,10 +68,12 @@ def install():
                 return        
         decisao = messagebox.askokcancel("Quer instalar essa versão?", f"Tem certeza que quer instalar a versão {list_ver.get()}?")
         if decisao:
+            instal.configure(text="Baixando...", state=DISABLED, fg_color="#21a346")
             minecraft_launcher_lib.install.install_minecraft_version(list_ver.get(), mc_dir, callback={"setProgress": setpro})
+            instal.configure(text="Baixar", state=NORMAL, fg_color="#2fe964")
             progreso.set(0)
-            messagebox.showinfo("Instalado!", f"Versão instalada com sucesso!")
             reload()
+            messagebox.showinfo("Instalado!", f"Versão instalada com sucesso!")
 
     def bai_thre():
         thread = threading.Thread(target=baixar)
