@@ -21,7 +21,7 @@ else:
 
 config = configparser.ConfigParser()
 
-if not os.path.isfile(".\\config.ini"):
+if not os.path.isfile("./config.ini"):
     config["Launcher"] = {
         "local": False,
         "r_presence": False,
@@ -150,7 +150,7 @@ def start():
                "launcher_version": str(lau_ver),
                }
     if local.get() != "Nenhum":
-        option["gameDirectory"] = f"{mc_dir}\\instances\\{local.get()}"
+        option["gameDirectory"] = f"{mc_dir}/instances/{local.get()}"
     if jav_arg.get():
         option["jvmArguments"] = jav_arg.get().split()
 
@@ -189,8 +189,8 @@ def instance():
         if in_name.get() == None:
             messagebox.showerror("Erro!", "Coloque algum nome")
         else:
-            os.mkdir(f"{mc_dir}\\instances\\{in_name.get()}")
-            loc = os.listdir(f"{mc_dir}\\instances")
+            os.mkdir(f"{mc_dir}/instances/{in_name.get()}")
+            loc = os.listdir(f"{mc_dir}/instances")
             loc.insert(0, "Nenhum")
             local.configure(values=loc)
             local.set(loc[0])
@@ -266,8 +266,8 @@ def apagar():
 
     def dele():
         if local.get() != "Nenhum":
-            os.rmdir(f"{mc_dir}\\instances\\{local.get()}")
-            loc = os.listdir(f"{mc_dir}\\instances")
+            os.rmdir(f"{mc_dir}/instances/{local.get()}")
+            loc = os.listdir(f"{mc_dir}/instances")
             loc.insert(0, "Nenhum")
             local.configure(values=loc)
             local.set(loc[0])
@@ -335,7 +335,7 @@ def delete_version():
         return
 
     def dele_ver():
-        rmtree(f"{mc_dir}\\versions\\{list.get()}")
+        rmtree(f"{mc_dir}/versions/{list.get()}")
         reload()
         messagebox.showinfo("Pronto!", "versão desinstalada com sucesso!")
         exit()
@@ -462,11 +462,11 @@ des_ver.place(x=140, y=230)
 value_local = StringVar(main)
 value_local.set("Nenhum")
 
-if os.path.isdir(f"{mc_dir}\\instances"):
-    inst = os.listdir(f"{mc_dir}\\instances")
+if os.path.isdir(f"{mc_dir}/instances"):
+    inst = os.listdir(f"{mc_dir}/instances")
 else:
-    os.mkdir(f"{mc_dir}\\instances")
-    inst = os.listdir(f"{mc_dir}\\instances")
+    os.mkdir(f"{mc_dir}/instances")
+    inst = os.listdir(f"{mc_dir}/instances")
 inst.insert(0, "Nenhum")
 
 local = customtkinter.CTkOptionMenu(main, variable=value_local, values=inst, fg_color="#21a346", button_color="#2fe964", hover=True, button_hover_color="#21a346")
