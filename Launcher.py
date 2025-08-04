@@ -1,23 +1,21 @@
-import minecraft_launcher_lib
-import subprocess
+import minecraft_launcher_lib, subprocess, customtkinter, os, threading, uuid, configparser, sys, platform
 from tkinter import *
 from tkinter import messagebox
-import customtkinter
-import os
 from CTkListbox import *
-import threading
 from pypresence import Presence
-import uuid
-import configparser
-import sys
 from shutil import rmtree
 
 lau_ver = 1.0
 
-if getattr(sys, 'frozen', False):
-    icon = os.path.join(sys._MEIPASS, "logo.ico")
-else:
-    icon = "logo.ico"
+if platform.system() == "Windows":
+    if getattr(sys, 'frozen', False):
+        icon = os.path.join(sys._MEIPASS, "logo.ico")
+    else:
+        icon = "logo.ico"
+
+def icone(janela):
+    if platform.system() == "Windows":
+        janela.iconbitmap(icon)
 
 config = configparser.ConfigParser()
 
@@ -56,7 +54,7 @@ def reload():
 def install():
     ver = customtkinter.CTk(fg_color="#1f1f1f")
     ver.title("Instalar versão")
-    ver.iconbitmap(icon)
+    icone(ver)
     ver.geometry("300x270")
 
     def setpro(baixado):
@@ -163,24 +161,31 @@ def start():
         nome = "Nenhum Nome"
 
     if dis_rich.get():
-        RPC.connect()
-        RPC.update(
-            details=nome,
-            large_image="mine",
-            large_text=versao,
-            small_image="logo",
-            small_text="Nexus MC",
-            state=f"jogando {versao}"
-            )
-    if show_cmd.get():
-        processo = subprocess.Popen(command)
-    else:
+        try:
+            RPC.connect()
+            RPC.update(
+                details=nome,
+                large_image="mine",
+                large_text=versao,
+                small_image="logo",
+                small_text="Nexus MC",
+                state=f"jogando {versao}"
+                )
+        except:
+            pass
+
+    if platform.system() == "Windows" and not show_cmd.get():
         processo = subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW)
+    else:
+        processo = subprocess.Popen(command)
 
     processo.wait()
 
     if dis_rich.get():
-        RPC.clear()
+        try:
+            RPC.clear()
+        except:
+            pass
     main.deiconify()
 
 def instance():
@@ -208,7 +213,7 @@ def instance():
     inswin = customtkinter.CTk(fg_color="#1f1f1f")
     inswin.title("Criar Local")
     inswin.geometry("300x150")
-    inswin.iconbitmap(icon)
+    icone(inswin)
 
     widlabel = customtkinter.CTkLabel(inswin, text="Criar Local de Jogo")
     widlabel.place(x=100, y=10)
@@ -290,7 +295,7 @@ def apagar():
     delwin = customtkinter.CTk(fg_color="#1f1f1f")
     delwin.title("Cuidado!")
     delwin.geometry("300x120")
-    delwin.iconbitmap(icon)
+    icone(delwin)
 
     widlabel = customtkinter.CTkLabel(delwin, text="Você tem certeza que quer apagar?")
     widlabel.place(x=55, y=10)
@@ -350,7 +355,7 @@ def delete_version():
     delver = customtkinter.CTk(fg_color="#1f1f1f")
     delver.title("Cuidado!")
     delver.geometry("300x120")
-    delver.iconbitmap(icon)
+    icone(delver)
 
     widlabel = customtkinter.CTkLabel(delver, text=f"Você tem certeza que quer apagar {list.get()}?")
     widlabel.place(x=40, y=10)
@@ -392,7 +397,7 @@ def delete_version():
 main = customtkinter.CTk(fg_color="#1f1f1f")
 main.title("NexusMC")
 main.geometry("500x270")
-main.iconbitmap(icon)
+icone(main)
 
 User = customtkinter.CTkEntry(
     master=main,
@@ -508,7 +513,12 @@ options_frame.place(x=350, y=50)
 dis_rich = customtkinter.CTkCheckBox(options_frame, text="Rich Presence", variable=customtkinter.BooleanVar(value=config["Launcher"]["r_presence"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
 dis_rich.place(x=5, y=5)
 
-show_cmd = customtkinter.CTkCheckBox(options_frame, text="Mostrar Console", variable=customtkinter.BooleanVar(value=config["Launcher"]["show_cmd"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+if platform.system() != "Windows":
+    abilitado = DISABLED
+else:
+    abilitado = NORMAL
+
+show_cmd = customtkinter.CTkCheckBox(options_frame, text="Mostrar Console", variable=customtkinter.BooleanVar(value=config["Launcher"]["show_cmd"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346", state=abilitado)
 show_cmd.place(x=5, y=35)
 
 jav_arg = customtkinter.CTkEntry(options_frame, placeholder_text="Java Arguments", placeholder_text_color="#616161", font=("Arial", 14), text_color="#ffffff", height=30, width=130, border_width=0, corner_radius=15, bg_color="#272727", fg_color="#303030")
