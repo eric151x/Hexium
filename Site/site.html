@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusMC | Modern Minecraft Launcher</title>
+    <title>Hexium | Launcher de Minecraft Minimalista</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animate.css -->
@@ -12,8 +12,8 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #00ff88;
-            --secondary: #0099ff;
+            --primary: #2fe964;
+            --secondary: #21a346;
             --dark: #121212;
             --darker: #0a0a0a;
             --light: #ffffff;
@@ -111,12 +111,33 @@
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 4px 15px rgba(47, 233, 100, 0.3);
         }
         
         .cta-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+            box-shadow: 0 6px 20px rgba(47, 233, 100, 0.4);
+        }
+        
+        .coming-soon {
+            background: var(--gray) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            position: relative;
+            cursor: not-allowed;
+        }
+        
+        .coming-soon::after {
+            content: 'Em Breve';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: var(--darker);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
         
         /* Hero Section */
@@ -159,7 +180,7 @@
             right: 5%;
             width: 40%;
             max-width: 600px;
-            filter: drop-shadow(0 20px 30px rgba(0, 255, 136, 0.2));
+            filter: drop-shadow(0 20px 30px rgba(47, 233, 100, 0.2));
             animation: float 6s ease-in-out infinite;
         }
         
@@ -197,8 +218,8 @@
         
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
-            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 30px rgba(47, 233, 100, 0.1);
+            border-color: rgba(47, 233, 100, 0.3);
         }
         
         .feature-icon {
@@ -242,8 +263,8 @@
         
         .download-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 153, 255, 0.1);
-            border-color: rgba(0, 153, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(33, 163, 70, 0.1);
+            border-color: rgba(33, 163, 70, 0.3);
         }
         
         .download-icon {
@@ -322,88 +343,94 @@
     <!-- Navigation -->
     <nav data-aos="fade-down">
         <a href="#" class="logo">
-            <img src="Logo2.png" alt="NexusMC Logo">
-            NexusMC
+            <img src="logo.png" alt="Hexium Logo">
+            Hexium
         </a>
         <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#download">Download</a>
-            <a href="#about">About</a>
-            <a href="#support">Support</a>
+            <a href="#features">Características</a>
+            <a href="about.html">Sobre</a>
+            <a href="#support">Suporte</a>
         </div>
-        <a href="#download" class="cta-button animate__animated animate__pulse animate__infinite animate__slower">Download</a>
+        <a href="#download" class="cta-button animate__animated animate__pulse animate__infinite animate__slower">Baixar</a>
     </nav>
     
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content" data-aos="fade-right">
-            <h1 class="animate__animated animate__fadeIn">The Ultimate Minecraft Launcher</h1>
-            <p>Experience Minecraft like never before with NexusMC. Fast, modern, and packed with features to enhance your gameplay. Manage all your Minecraft versions in one place with a sleek interface.</p>
+            <h1 class="animate__animated animate__fadeIn">O Launcher de Minecraft Minimalista</h1>
+            <p>Experimente o Minecraft com um inicializador limpo, leve e moderno. O Hexium foca em ser portátil e fácil de usar, proporcionando uma experiência rápida e sem distrações.</p>
             <div class="hero-buttons">
-                <a href="#download" class="cta-button animate__animated animate__fadeInUp animate__delay-1s">Download Now</a>
-                <a href="#features" class="cta-button animate__animated animate__fadeInUp animate__delay-1s" style="background: var(--gray); color: var(--light); box-shadow: none;">Learn More</a>
+                <a href="#download" class="cta-button animate__animated animate__fadeInUp animate__delay-1s">Baixar Agora</a>
+                <a href="#features" class="cta-button animate__animated animate__fadeInUp animate__delay-1s" style="background: var(--gray); color: var(--light); box-shadow: none;">Saber Mais</a>
             </div>
             <div class="stats animate__animated animate__fadeInUp animate__delay-2s">
-                <span><i class="fas fa-download"></i> 1B+ Downloads</span>
-                <span><i class="fas fa-users"></i> 1+ Users</span>
+                <span><i class="fas fa-download"></i> 0 Downloads</span>
+                <span><i class="fas fa-users"></i> 0 Usuários</span>
             </div>
         </div>
-        <img src="preview.png" alt="NexusMC Launcher Preview" class="hero-image animate__animated animate__fadeInRight">
+        <img src="preview.png" alt="Hexium Launcher Preview" class="hero-image animate__animated animate__fadeInRight">
     </section>
     
     <!-- Features Section -->
     <section class="features" id="features">
-        <h2 class="section-title" data-aos="fade-up">Why Choose NexusMC?</h2>
+        <h2 class="section-title" data-aos="fade-up">Porque usar o Hexium?</h2>
         <div class="features-grid">
             <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
                 <div class="feature-icon">
                     <i class="fas fa-bolt"></i>
                 </div>
-                <h3>Lightning Fast</h3>
-                <p>Optimized for performance with minimal resource usage. Launch Minecraft faster than ever before with our efficient architecture.</p>
+                <h3>Rápido</h3>
+                <p>Otimizado para desempenho com uso mínimo de recursos. Inicie o Minecraft mais rápido do que nunca com nossa otimização.</p>
             </div>
             <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
                 <div class="feature-icon">
                     <i class="fas fa-layer-group"></i>
                 </div>
-                <h3>Version Management</h3>
-                <p>Easily switch between Minecraft versions, mod loaders, and configurations. All your instances in one organized place.</p>
+                <h3>Alternância rápida de versão</h3>
+                <p>Troque rápidamente entre uma versão e outra.</p>
             </div>
             <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
                 <div class="feature-icon">
-                    <i class="fas fa-palette"></i>
+                    <i class="fas fa-leaf"></i>
                 </div>
-                <h3>Customizable UI</h3>
-                <p>Personalize your launcher with themes, layouts, and custom skins. Make it truly yours with our extensive customization options.</p>
+                <h3>Design Minimalista</h3>
+                <p>Interface limpa e sem distrações, com foco no que importa.</p>
             </div>
             <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
                 <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
+                    <i class="fas fa-box-open"></i>
                 </div>
-                <h3>Secure</h3>
-                <p>Built with security in mind. Your credentials are encrypted and never stored in plain text. We respect your privacy.</p>
-            </div>
-            <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
-                <div class="feature-icon">
-                    <i class="fas fa-plug"></i>
-                </div>
-                <h3>Mod Support</h3>
-                <p>Integrated mod management with support for Forge, Fabric, and Quilt. Install mods with a single click.</p>
+                <h3>Portátil</h3>
+                <p>Não precisa instalar, é só baixar, rodar e jogar.</p>
             </div>
             <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
                 <div class="feature-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Leve</h3>
+                <p>Ocupa pouco espaço e não deixa o sistema lento. Pesa menos de 50 MB.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-icon">
                     <i class="fas fa-cloud"></i>
                 </div>
-                <h3>Cloud Sync</h3>
-                <p>Sync your settings, mods, and worlds across devices. Play anywhere, anytime with your perfect setup.</p>
+                <h3>Backup na Nuvem (Em Breve)</h3>
+                <p>Salve seus mundos, mods e configurações em serviços de nuvem (Google Drive, OneDrive, MEGA e mais).</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+                <h3>Temas (Em Breve)</h3>
+                <p>Deixe o Launcher a sua cara.</p>
             </div>
         </div>
     </section>
     
     <!-- Download Section -->
     <section class="download" id="download">
-        <h2 class="section-title" data-aos="fade-up">Download NexusMC</h2>
-        <p data-aos="fade-up" data-aos-delay="100" style="max-width: 700px; margin: 0 auto 2rem; color: rgba(255, 255, 255, 0.8);">Available for all major platforms. Join millions of players using NexusMC today.</p>
+        <h2 class="section-title" data-aos="fade-up">Baixe o Hexium</h2>
+        <p data-aos="fade-up" data-aos-delay="100" style="max-width: 700px; margin: 0 auto 2rem; color: rgba(255, 255, 255, 0.8);">Available for all major platforms. Join millions of players using Hexium today.</p>
         <div class="download-cards">
             <div class="download-card" data-aos="fade-up" data-aos-delay="200">
                 <div class="download-icon">
@@ -411,7 +438,7 @@
                 </div>
                 <h3>Windows</h3>
                 <p>Windows 10/11 (64-bit)</p>
-                <a href="https://itchio-mirror.cb031a832f44726753d6267436f3b414.r2.cloudflarestorage.com/upload2/game/2734204/10636055?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=3edfcce40115d057d0b5606758e7e9ee%2F20250720%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250720T042506Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host&X-Amz-Signature=6cf0899a1b27a54dd7bbfcf60398baa4786131f835349544c40a8528ac81c240" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Download</a>
+                <a href="#" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
             </div>
             <div class="download-card" data-aos="fade-up" data-aos-delay="300">
                 <div class="download-icon">
@@ -419,15 +446,23 @@
                 </div>
                 <h3>macOS</h3>
                 <p>macOS 10.15+ (Intel/Apple Silicon)</p>
-                <a href="#" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Download</a>
+                <a href="#" class="cta-button coming-soon" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
             </div>
             <div class="download-card" data-aos="fade-up" data-aos-delay="400">
                 <div class="download-icon">
                     <i class="fab fa-linux"></i>
                 </div>
                 <h3>Linux</h3>
-                <p>.deb, .rpm & AppImage available</p>
-                <a href="#" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Download</a>
+                <p>Executável Linux</p>
+                <a href="#" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
+            </div>
+            <div class="download-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="download-icon">
+                    <i class="fab fa-itch-io"></i>
+                </div>
+                <h3>Itch.io</h3>
+                <p>Acesse o Hexium no Itch.io</p>
+                <a href="https://erichborges13.itch.io/hexium" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Acessar</a>
             </div>
         </div>
     </section>
@@ -436,11 +471,10 @@
     <footer data-aos="fade-up">
         <div class="social-links">
             <a href="#" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-discord"></i></a>
-            <a href="#" class="animate__animated animate__fadeIn animate__delay-2s"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="animate__animated animate__fadeIn animate__delay-3s"><i class="fab fa-youtube"></i></a>
-            <a href="#" class="animate__animated animate__fadeIn animate__delay-4s"><i class="fab fa-github"></i></a>
+            <a href="https://erichborges13.itch.io/hexium" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-itch-io"></i></a>
+            <a href="https://github.com/eric151x/Hexium" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-github"></i></a>
         </div>
-        <p class="copyright">© 2023 NexusMC. Not affiliated with Mojang or Microsoft. All rights reserved.</p>
+        <p class="copyright">© 2025 Hexium. Not affiliated with Mojang or Microsoft. All rights reserved.</p>
     </footer>
     
     <!-- Scripts -->
@@ -468,7 +502,7 @@
                     }
                 },
                 "color": {
-                    "value": "#00ff88"
+                    "value": "#2fe964"
                 },
                 "shape": {
                     "type": "circle",
@@ -503,7 +537,7 @@
                 "line_linked": {
                     "enable": true,
                     "distance": 150,
-                    "color": "#00ff88",
+                    "color": "#2fe964",
                     "opacity": 0.2,
                     "width": 1
                 },
@@ -571,6 +605,13 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
+            });
+        });
+        
+        // Disable coming soon buttons
+        document.querySelectorAll('.coming-soon').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
             });
         });
     </script>
