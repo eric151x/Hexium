@@ -55,7 +55,7 @@ def install():
     ver = customtkinter.CTk(fg_color="#1f1f1f")
     ver.title("Instalar versão")
     icone(ver)
-    ver.geometry("300x270")
+    ver.geometry("230x270")
 
     def setpro(baixado):
         progreso.set(baixado / 1000)
@@ -99,7 +99,7 @@ def install():
     alpha = [v for v in minecraft_launcher_lib.utils.get_version_list() if v["type"] == "old_alpha"]
     beta = [v for v in minecraft_launcher_lib.utils.get_version_list() if v["type"] == "old_beta"]
 
-    types = customtkinter.CTkOptionMenu(ver, variable=StringVar(ver).set("Release"), values=["Lançamento", "Snapshot", "Alpha Antiga", "Beta Antiga"], fg_color="#21a346", button_color="#2fe964", hover=True, button_hover_color="#21a346", command=atualizar)
+    types = customtkinter.CTkOptionMenu(ver, variable=StringVar(ver).set("Lançamento"), values=["Lançamento", "Snapshot", "Alpha Antiga", "Beta Antiga"], fg_color="#21a346", button_color="#2fe964", hover=True, button_hover_color="#21a346", command=atualizar)
     types.place(x=10, y=10)
 
     instal = customtkinter.CTkButton(
@@ -146,7 +146,7 @@ def start():
     option = {"username": User.get(),
                "uuid": uid,
                "token": "",
-               "launcher_name": "NexusMC",
+               "launcher_name": "Hexium",
                "launcher_version": str(lau_ver),
                }
     if local.get() != "Nenhum":
@@ -170,7 +170,7 @@ def start():
                 large_image="mine",
                 large_text=versao,
                 small_image="logo",
-                small_text="Nexus MC",
+                small_text="Hexium",
                 state=f"jogando {versao}"
                 )
         except:
@@ -397,7 +397,7 @@ def delete_version():
     delver.mainloop()
 
 main = customtkinter.CTk(fg_color="#1f1f1f")
-main.title("NexusMC")
+main.title("Hexium")
 main.geometry("500x270")
 icone(main)
 
@@ -432,7 +432,7 @@ comeca = customtkinter.CTkButton(
     fg_color="#2fe964",
     command=start,
     )
-comeca.place(x=400, y=230)
+comeca.place(x=395, y=230)
 
 ins_ver = customtkinter.CTkButton(
     master=main,
@@ -458,7 +458,7 @@ des_ver = customtkinter.CTkButton(
     hover=True,
     hover_color="#21a346",
     height=30,
-    width=40,
+    width=41,
     corner_radius=15,
     bg_color="#1f1f1f",
     fg_color="#2fe964",
@@ -527,6 +527,9 @@ jav_arg = customtkinter.CTkEntry(options_frame, placeholder_text="Java Arguments
 jav_arg.place(x=5, y=65)
 if config["Launcher"]["jav_arguments"]:
     jav_arg.insert(0, config["Launcher"]["jav_arguments"])
+
+ver_lau = customtkinter.CTkLabel(main, text_color="#404040", text=f"v{lau_ver}")
+ver_lau.place(x=250, y=240)
 
 list = CTkListbox(main, hover_color="#21a346", highlight_color="#2fe964", height=160, border_width=0, fg_color="#272727")
 list.place(x=10, y=50)
