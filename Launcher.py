@@ -1,13 +1,16 @@
-import minecraft_launcher_lib, subprocess, customtkinter, os, threading, uuid, configparser, sys, platform
+import minecraft_launcher_lib, subprocess, customtkinter, os, threading, uuid, configparser, sys, platform, requests, webbrowser
 from tkinter import *
 from tkinter import messagebox
 from CTkListbox import *
 from pypresence import Presence
 from shutil import rmtree
 
-lau_ver = 1.0
+#Versão do Launcher
+lau_ver = 0.1
 
+#Para identificar qual OS está sendo usado
 if platform.system() == "Windows":
+    #Para identificar está sendo rodado o código ou o executável
     if getattr(sys, 'frozen', False):
         icon = os.path.join(sys._MEIPASS, "logo.ico")
     else:
@@ -17,6 +20,7 @@ def icone(janela):
     if platform.system() == "Windows":
         janela.iconbitmap(icon)
 
+#Aqui cria o arquivo de configuração caso não exista
 config = configparser.ConfigParser()
 
 if not os.path.isfile("./config.ini"):
@@ -29,12 +33,36 @@ if not os.path.isfile("./config.ini"):
     config["Account"] = {
         "name": ""
     }
+    config["Config"] = {
+        "check_atu": True
+    }
     config.write(open("config.ini", "w"))
 
+#Isso lê o arquivo de configuração
 config.read("config.ini")
 
+#Receber a versão mais recente
+try:
+    response = requests.get("https://api.github.com/repos/eric151x/Hexium/releases/latest")
+    response.raise_for_status()
+    latest_version = response.json().get("name").lstrip("vV")
+except:
+    pass
+
+def latest_function():
+    try:
+        if float(lau_ver) < float(latest_version):
+            atu_message = messagebox.askyesno("Nova atualização!", "Nova atualização Disponível! Deseja baixar?")
+            if atu_message:
+                webbrowser.open("https://github.com/eric151x/Hexium/releases/tag/Alpha")
+    except:
+        pass
+
+
+#Isso é do Rich Presence
 RPC = Presence("1400279407565869168")
 
+#Isso define se vai ler a pasta do Minecraft local ou do AppData
 if config["Launcher"]["local"] == "True":
     if os.path.isdir(".minecraft"):
         mc_dir = os.path.join(os.getcwd(), ".minecraft")
@@ -170,8 +198,7 @@ def start():
                 large_image="mine",
                 large_text=versao,
                 small_image="logo",
-                small_text="Hexium",
-                state=f"jogando {versao}"
+                small_text=f"v{lau_ver}"
                 )
         except:
             pass
@@ -396,6 +423,54 @@ def delete_version():
 
     delver.mainloop()
 
+def win_config():
+    def save_config():
+        config["Config"]["check_atu"] = str(check_atu.get())
+        config.write(open("config.ini", "w"))
+        config_tk.destroy()
+
+    config_tk = customtkinter.CTk(fg_color="#1f1f1f")
+    config_tk.title("Configurações")
+    config_tk.geometry("400x300")
+    icone(config_tk)
+
+    check_atu = customtkinter.CTkCheckBox(config_tk, text="Verificar novas atualizações", variable=customtkinter.BooleanVar(value=config["Config"]["check_atu"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    check_atu.place(x=10, y=10)
+
+    save = customtkinter.CTkButton(
+    master=config_tk,
+    text="Salvar",
+    font=("undefined", 14),
+    text_color="#000000",
+    hover=True,
+    hover_color="#21a346",
+    height=30,
+    width=100,
+    corner_radius=15,
+    bg_color="#1f1f1f",
+    fg_color="#2fe964",
+    command=save_config
+    )
+    save.place(x=290, y=260)
+
+    check_now = customtkinter.CTkButton(
+    master=config_tk,
+    text="Verificar atualização agora",
+    font=("undefined", 14),
+    text_color="#000000",
+    hover=True,
+    hover_color="#21a346",
+    height=30,
+    width=100,
+    corner_radius=15,
+    bg_color="#1f1f1f",
+    fg_color="#2fe964",
+    command=latest_function
+    )
+    check_now.place(x=10, y=40)
+
+    config_tk.mainloop()
+
 main = customtkinter.CTk(fg_color="#1f1f1f")
 main.title("Hexium")
 main.geometry("500x270")
@@ -528,6 +603,22 @@ jav_arg.place(x=5, y=65)
 if config["Launcher"]["jav_arguments"]:
     jav_arg.insert(0, config["Launcher"]["jav_arguments"])
 
+button_config = customtkinter.CTkButton(
+    master=main,
+    text="Configurações",
+    font=("undefined", 14),
+    text_color="#000000",
+    hover=True,
+    hover_color="#21a346",
+    height=30,
+    width=140,
+    corner_radius=15,
+    bg_color="#1f1f1f",
+    fg_color="#2fe964",
+    command=win_config,
+    )
+button_config.place(x=350, y=160)
+
 ver_lau = customtkinter.CTkLabel(main, text_color="#404040", text=f"v{lau_ver}")
 ver_lau.place(x=250, y=240)
 
@@ -543,6 +634,9 @@ def fechar():
     config["Account"]["name"] = str(User.get())
     config.write(open("config.ini", "w"))
     main.destroy()
+
+if config["Config"]["check_atu"] == "True":
+    main.after(500, latest_function)
 
 main.protocol("WM_DELETE_WINDOW", fechar)
 main.mainloop()
