@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexium | Launcher de Minecraft Minimalista</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2fe964;
+            --secondary: #21a346;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #ffffff;
+            --gray: #2a2a2a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Montserrat', sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        /* Particle Background */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: var(--darker);
+        }
+        
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+            text-decoration: none;
+        }
+        
+        .logo img {
+            height: 2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            color: var(--darker);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(47, 233, 100, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(47, 233, 100, 0.4);
+        }
+        
+        .coming-soon {
+            background: var(--gray) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            position: relative;
+            cursor: not-allowed;
+        }
+        
+        .coming-soon::after {
+            content: 'Em Breve';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: var(--darker);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            padding-top: 6rem;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(to right, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-image {
+            position: absolute;
+            right: 5%;
+            width: 40%;
+            max-width: 600px;
+            filter: drop-shadow(0 20px 30px rgba(47, 233, 100, 0.2));
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 6rem 5%;
+            background-color: var(--darker);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            font-size: 2.5rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--gray);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(47, 233, 100, 0.1);
+            border-color: rgba(47, 233, 100, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+        
+        /* Download Section */
+        .download {
+            padding: 6rem 5%;
+            text-align: center;
+        }
+        
+        .download-cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+        
+        .download-card {
+            background-color: var(--gray);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 280px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .download-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(33, 163, 70, 0.1);
+            border-color: rgba(33, 163, 70, 0.3);
+        }
+        
+        .download-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .download-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--darker);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-links a {
+            color: var(--light);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-image {
+                display: none;
+            }
+            
+            .hero-content {
+                max-width: 100%;
+                text-align: center;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle.js Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Navigation -->
+    <nav data-aos="fade-down">
+        <a href="#" class="logo">
+            <img src="logo.png" alt="Hexium Logo">
+            Hexium
+        </a>
+        <div class="nav-links">
+            <a href="#features">Características</a>
+            <a href="about.html">Sobre</a>
+            <a href="#plugins">Plugins</a>            
+            <a href="#support">Suporte</a>
+        </div>
+        <a href="#download" class="cta-button animate__animated animate__pulse animate__infinite animate__slower">Baixar</a>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content" data-aos="fade-right">
+            <h1 class="animate__animated animate__fadeIn">O Launcher de Minecraft Minimalista</h1>
+            <p>Experimente o Minecraft com um inicializador limpo, leve e moderno. O Hexium foca em ser portátil e fácil de usar, proporcionando uma experiência rápida e sem distrações.</p>
+            <div class="hero-buttons">
+                <a href="#download" class="cta-button animate__animated animate__fadeInUp animate__delay-1s">Baixar Agora</a>
+                <a href="#features" class="cta-button animate__animated animate__fadeInUp animate__delay-1s" style="background: var(--gray); color: var(--light); box-shadow: none;">Saber Mais</a>
+            </div>
+            <div class="stats animate__animated animate__fadeInUp animate__delay-2s">
+                <span><i class="fas fa-download"></i> 0 Downloads</span>
+                <span><i class="fas fa-users"></i> 0 Usuários</span>
+            </div>
+        </div>
+        <img src="preview.png" alt="Hexium Launcher Preview" class="hero-image animate__animated animate__fadeInRight">
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title" data-aos="fade-up">Porque usar o Hexium?</h2>
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Rápido</h3>
+                <p>Otimizado para desempenho com uso mínimo de recursos. Inicie o Minecraft mais rápido do que nunca com nossa otimização.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Design Minimalista</h3>
+                <p>Interface limpa e sem distrações, com foco no que importa.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>Portátil</h3>
+                <p>Não precisa instalar, é só baixar, rodar e jogar.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Leve</h3>
+                <p>Ocupa pouco espaço e não deixa o sistema lento. Pesa menos de 50 MB.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>Backup na Nuvem (Em Breve)</h3>
+                <p>Salve seus mundos, mods e configurações em serviços de nuvem (Google Drive, OneDrive, MEGA e mais).</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+                <h3>Temas (Em Breve)</h3>
+                <p>Deixe o Launcher a sua cara.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <h3>Plugins (Em Breve)</h3>
+                <p>Modele o Launcher do jeito que você quiser.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Download Section -->
+    <section class="download" id="download">
+        <h2 class="section-title" data-aos="fade-up">Baixe o Hexium</h2>
+        <p data-aos="fade-up" data-aos-delay="100" style="max-width: 700px; margin: 0 auto 2rem; color: rgba(255, 255, 255, 0.8);">Available for all major platforms. Join millions of players using Hexium today.</p>
+        <div class="download-cards">
+            <div class="download-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="download-icon">
+                    <i class="fab fa-windows"></i>
+                </div>
+                <h3>Windows</h3>
+                <p>Windows 10/11 (64-bit)</p>
+                <a href="https://github.com/eric151x/Hexium/releases/download/Alpha/Hexium.exe" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
+            </div>
+            <div class="download-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="download-icon">
+                    <i class="fab fa-apple"></i>
+                </div>
+                <h3>macOS</h3>
+                <p>macOS 10.15+ (Intel/Apple Silicon)</p>
+                <a href="#" class="cta-button coming-soon" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
+            </div>
+            <div class="download-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="download-icon">
+                    <i class="fab fa-linux"></i>
+                </div>
+                <h3>Linux</h3>
+                <p>Executável Linux</p>
+                <a href="https://github.com/eric151x/Hexium/releases/download/Alpha/Hexium-Linux" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Baixar</a>
+            </div>
+            <div class="download-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="download-icon">
+                    <i class="fab fa-itch-io"></i>
+                </div>
+                <h3>Itch.io</h3>
+                <p>Acesse o Hexium no Itch.io</p>
+                <a href="https://erichborges13.itch.io/hexium" class="cta-button" style="display: inline-block; margin-top: 1.5rem;">Acessar</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer data-aos="fade-up">
+        <div class="social-links">
+            <a href="#" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-discord"></i></a>
+            <a href="https://erichborges13.itch.io/hexium" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-itch-io"></i></a>
+            <a href="https://github.com/eric151x/Hexium" class="animate__animated animate__fadeIn animate__delay-1s"><i class="fab fa-github"></i></a>
+        </div>
+        <p class="copyright">© 2025 Hexium. Not affiliated with Mojang or Microsoft. All rights reserved.</p>
+    </footer>
+    
+    <!-- Scripts -->
+    <!-- Particle.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- AOS (Animate On Scroll) -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Main JS -->
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        
+        // Initialize particles.js
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#2fe964"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    }
+                },
+                "opacity": {
+                    "value": 0.3,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#2fe964",
+                    "opacity": 0.2,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200,
+                        "duration": 0.4
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Disable coming soon buttons
+        document.querySelectorAll('.coming-soon').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>
