@@ -6,7 +6,7 @@ from pypresence import Presence
 from shutil import rmtree
 
 #Versão do Launcher
-lau_ver = 0.1
+lau_ver = 1.1
 
 #Para identificar qual OS está sendo usado
 if platform.system() == "Windows":
@@ -49,6 +49,7 @@ try:
 except:
     pass
 
+#Verifica se a versão atual é inferior a versão mais recente
 def latest_function():
     try:
         if float(lau_ver) < float(latest_version):
@@ -59,7 +60,7 @@ def latest_function():
         pass
 
 
-#Isso é do Rich Presence
+#ID do Rich Presence
 RPC = Presence("1400279407565869168")
 
 #Isso define se vai ler a pasta do Minecraft local ou do AppData
@@ -72,6 +73,7 @@ if config["Launcher"]["local"] == "True":
 else:
     mc_dir = minecraft_launcher_lib.utils.get_minecraft_directory()
 
+# Recarrega a lista das versões
 def reload():
     global installed_versions
     list.delete(0,END)
@@ -79,12 +81,14 @@ def reload():
     for version in installed_versions:
         list.insert(END, version["id"])
 
+#Janela de instalação de versão
 def install():
     ver = customtkinter.CTk(fg_color="#1f1f1f")
     ver.title("Instalar versão")
     icone(ver)
     ver.geometry("230x270")
 
+    #Definir o progresso da barra
     def setpro(baixado):
         progreso.set(baixado / 1000)
 
@@ -103,10 +107,12 @@ def install():
             reload()
             messagebox.showinfo("Instalado!", f"Versão instalada com sucesso!")
 
+    #Começa a instalação em outro Thread
     def bai_thre():
         thread = threading.Thread(target=baixar)
         thread.start()
 
+    #Atualiza a lista quando seleciona alguma opção
     def atualizar(valor):
         list_ver.delete(0,END)
         if valor == "Lançamento":
@@ -122,6 +128,7 @@ def install():
             for v in beta:
                 list_ver.insert(END, v["id"])
 
+    #Lista dos tipos de versões
     release = [v for v in minecraft_launcher_lib.utils.get_version_list() if v["type"] == "release"]
     snapshot = [v for v in minecraft_launcher_lib.utils.get_version_list() if v["type"] == "snapshot"]
     alpha = [v for v in minecraft_launcher_lib.utils.get_version_list() if v["type"] == "old_alpha"]
@@ -157,6 +164,7 @@ def install():
 
     ver.mainloop()
 
+#Função de executar o minecraft
 def start():
     versao = list.get(list.curselection())
 
@@ -169,8 +177,10 @@ def start():
         messagebox.showerror("Erro!", "Selecione uma versão!")
         return
 
+    #UUID
     uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
 
+    #Opções
     option = {"username": User.get(),
                "uuid": uid,
                "token": "",
@@ -182,6 +192,7 @@ def start():
     if jav_arg.get():
         option["jvmArguments"] = jav_arg.get().split()
 
+    #Comandos de inicialização
     command = minecraft_launcher_lib.command.get_minecraft_command(version=versao, minecraft_directory=mc_dir, options=option)
     main.withdraw()
 
@@ -190,6 +201,7 @@ def start():
     else:
         nome = "Nenhum Nome"
 
+    #Rich Presence
     if dis_rich.get():
         try:
             RPC.connect()
@@ -203,6 +215,7 @@ def start():
         except:
             pass
 
+    #Iniciar o Minecraft
     if platform.system() == "Windows" and not show_cmd.get():
         processo = subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW)
     else:
@@ -425,6 +438,7 @@ def delete_version():
 
 def win_config():
     def save_config():
+        config["Launcher"]["local"] = str(local_button.get())
         config["Config"]["check_atu"] = str(check_atu.get())
         config.write(open("config.ini", "w"))
         config_tk.destroy()
@@ -436,6 +450,9 @@ def win_config():
 
     check_atu = customtkinter.CTkCheckBox(config_tk, text="Verificar novas atualizações", variable=customtkinter.BooleanVar(value=config["Config"]["check_atu"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
     check_atu.place(x=10, y=10)
+
+    local_button = customtkinter.CTkCheckBox(config_tk, text=".minecraft na pasta local (Precisa reiniciar)", variable=customtkinter.BooleanVar(value=config["Launcher"]["local"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    local_button.place(x=10, y=80)
 
     save = customtkinter.CTkButton(
     master=config_tk,
