@@ -1,4 +1,4 @@
-# <img src="logo.ico" width="30"> Hexium
+# <img src="src/logo.ico" width="30"> Hexium
 
 > Launcher de Minecraft minimalista, portátil e leve.
 
