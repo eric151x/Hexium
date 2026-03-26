@@ -1,12 +1,18 @@
-import minecraft_launcher_lib, subprocess, customtkinter, os, threading, uuid, configparser, sys, platform, requests, webbrowser
+import minecraft_launcher_lib, subprocess, customtkinter, os, threading, uuid, configparser, sys, platform, requests, webbrowser, wget
 from tkinter import *
 from tkinter import messagebox
 from CTkListbox import *
 from pypresence import Presence
-from shutil import rmtree
+import shutil
 
-#Versão do Launcher
-lau_ver = 1.1
+versao = 1.2
+
+#Identifica se a versão é beta
+if False:
+    #Versão do launcher
+    lau_ver = str(versao) + " " + "Beta"
+else:
+    lau_ver = versao
 
 #Para identificar qual OS está sendo usado
 if platform.system() == "Windows":
@@ -25,8 +31,7 @@ config = configparser.ConfigParser()
 
 if not os.path.isfile("./config.ini"):
     config["Launcher"] = {
-        "local": False,
-        "r_presence": False,
+        "ely.by": False,
         "show_cmd": False,
         "jav_arguments": ""
     }
@@ -34,7 +39,9 @@ if not os.path.isfile("./config.ini"):
         "name": ""
     }
     config["Config"] = {
-        "check_atu": True
+        "check_atu": True,
+        "local": False,
+        "r_presence": False
     }
     config.write(open("config.ini", "w"))
 
@@ -59,12 +66,11 @@ def latest_function():
     except:
         pass
 
-
 #ID do Rich Presence
 RPC = Presence("1400279407565869168")
 
 #Isso define se vai ler a pasta do Minecraft local ou do AppData
-if config["Launcher"]["local"] == "True":
+if config["Config"]["local"] == "True":
     if os.path.isdir(".minecraft"):
         mc_dir = os.path.join(os.getcwd(), ".minecraft")
     else:
@@ -157,7 +163,7 @@ def install():
     progreso.place(x=190, y=50)
     progreso.set(0)
 
-    list_ver = CTkListbox(ver, hover_color="#21a346", highlight_color="#2fe964", height=160, border_width=0, fg_color="#272727")
+    list_ver = CTkListbox(ver, hover_color="#21a346", text_color="#ffffff", highlight_color="#2fe964", height=160, border_width=0, fg_color="#272727")
     list_ver.place(x=10, y=50)
     for version in release:
         list_ver.insert(END, version["id"])
@@ -167,6 +173,13 @@ def install():
 #Função de executar o minecraft
 def start():
     versao = list.get(list.curselection())
+    args = f"-Djava.library.path={mc_dir}/versions/{versao}/natives" + " " + jav_arg.get()
+
+    try:
+        shutil.rmtree(f"{mc_dir}/versions/{versao}/natives")
+    except:
+        pass
+    minecraft_launcher_lib.natives.extract_natives(versao, mc_dir, f"{mc_dir}/versions/{versao}/natives")
 
     if User.get() == "":
         aviso = messagebox.askyesno("Aviso!", "Você não colocou nenhum Nome, quer continuar?")
@@ -177,8 +190,25 @@ def start():
         messagebox.showerror("Erro!", "Selecione uma versão!")
         return
 
+    if ely.get():
+        #Baixa caso o authlib injector não esteja baixado
+        if not os.path.exists("authlib-injector-1.2.7.jar"):
+            wget.download("https://authlib-injector.yushi.moe/artifact/55/authlib-injector-1.2.7.jar", "authlib-injector-1.2.7.jar")
+
+        #recebe o uuid pelo username
+        uid_ely = requests.get(f"https://authserver.ely.by/api/users/profiles/minecraft/{User.get()}")
+
+        if uid_ely.json()["id"]:
+            uid = uid_ely.json()["id"]
+        else:
+            uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
+        
+        #Adiciona o argumento authlib injector
+        ely_arg = "-javaagent:authlib-injector-1.2.7.jar=ely.by" + " " + args
+
     #UUID
-    uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
+    if not ely.get():
+        uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
 
     #Opções
     option = {"username": User.get(),
@@ -189,8 +219,11 @@ def start():
                }
     if local.get() != "Nenhum":
         option["gameDirectory"] = f"{mc_dir}/instances/{local.get()}"
-    if jav_arg.get():
-        option["jvmArguments"] = jav_arg.get().split()
+    if ely.get():
+        option["jvmArguments"] = ely_arg.split()
+    else:
+        if jav_arg.get():
+            option["jvmArguments"] = args.split()
 
     #Comandos de inicialização
     command = minecraft_launcher_lib.command.get_minecraft_command(version=versao, minecraft_directory=mc_dir, options=option)
@@ -202,7 +235,7 @@ def start():
         nome = "Nenhum Nome"
 
     #Rich Presence
-    if dis_rich.get():
+    if config["Config"]["r_presence"]:
         try:
             RPC.connect()
             RPC.update(
@@ -223,11 +256,12 @@ def start():
 
     processo.wait()
 
-    if dis_rich.get():
+    if config["Config"]["r_presence"]:
         try:
             RPC.clear()
         except:
             pass
+    shutil.rmtree(f"{mc_dir}/versions/{versao}/natives")
     main.deiconify()
 
 def instance():
@@ -294,7 +328,7 @@ def instance():
         master=inswin,
         text="Cancelar",
         font=("undefined", 14),
-        text_color="#000000",
+        text_color="#ffffff",
         hover=True,
         hover_color="#222222",
         height=30,
@@ -313,7 +347,7 @@ def apagar():
 
     def dele():
         if local.get() != "Nenhum":
-            os.rmdir(f"{mc_dir}/instances/{local.get()}")
+            shutil.rmtree(f"{mc_dir}/instances/{local.get()}")
             loc = os.listdir(f"{mc_dir}/instances")
             loc.insert(0, "Nenhum")
             local.configure(values=loc)
@@ -362,7 +396,7 @@ def apagar():
         master=delwin,
         text="Cancelar",
         font=("undefined", 14),
-        text_color="#000000",
+        text_color="#ffffff",
         hover=True,
         hover_color="#222222",
         height=30,
@@ -382,7 +416,7 @@ def delete_version():
         return
 
     def dele_ver():
-        rmtree(f"{mc_dir}/versions/{list.get()}")
+        shutil.rmtree(f"{mc_dir}/versions/{list.get()}")
         reload()
         messagebox.showinfo("Pronto!", "versão desinstalada com sucesso!")
         exit()
@@ -400,7 +434,7 @@ def delete_version():
     icone(delver)
 
     widlabel = customtkinter.CTkLabel(delver, text=f"Você tem certeza que quer apagar {list.get()}?")
-    widlabel.place(x=40, y=10)
+    widlabel.place(relx=0.5, y=10, anchor="n")
 
     deletar = customtkinter.CTkButton(
         master=delver,
@@ -422,7 +456,7 @@ def delete_version():
         master=delver,
         text="Cancelar",
         font=("undefined", 14),
-        text_color="#000000",
+        text_color="#ffffff",
         hover=True,
         hover_color="#222222",
         height=30,
@@ -438,7 +472,8 @@ def delete_version():
 
 def win_config():
     def save_config():
-        config["Launcher"]["local"] = str(local_button.get())
+        config["Config"]["r_presence"] = str(dis_rich.get())
+        config["Config"]["local"] = str(local_button.get())
         config["Config"]["check_atu"] = str(check_atu.get())
         config.write(open("config.ini", "w"))
         config_tk.destroy()
@@ -448,11 +483,14 @@ def win_config():
     config_tk.geometry("400x300")
     icone(config_tk)
 
-    check_atu = customtkinter.CTkCheckBox(config_tk, text="Verificar novas atualizações", variable=customtkinter.BooleanVar(value=config["Config"]["check_atu"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    check_atu = customtkinter.CTkCheckBox(config_tk, text="Verificar novas atualizações", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Config"]["check_atu"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
     check_atu.place(x=10, y=10)
 
-    local_button = customtkinter.CTkCheckBox(config_tk, text=".minecraft na pasta local (Precisa reiniciar)", variable=customtkinter.BooleanVar(value=config["Launcher"]["local"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    local_button = customtkinter.CTkCheckBox(config_tk, text=".minecraft na pasta local (Precisa reiniciar)", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Config"]["local"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
     local_button.place(x=10, y=80)
+
+    dis_rich = customtkinter.CTkCheckBox(config_tk, text="Rich Presence", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Config"]["r_presence"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    dis_rich.place(x=10, y=110)
 
     save = customtkinter.CTkButton(
     master=config_tk,
@@ -604,15 +642,15 @@ menos.place(x=290, y=10)
 options_frame = customtkinter.CTkFrame(main, fg_color="#272727", height=100, width=140)
 options_frame.place(x=350, y=50)
 
-dis_rich = customtkinter.CTkCheckBox(options_frame, text="Rich Presence", variable=customtkinter.BooleanVar(value=config["Launcher"]["r_presence"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
-dis_rich.place(x=5, y=5)
+ely = customtkinter.CTkCheckBox(options_frame, text="Ely.by", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Launcher"]["ely.by"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+ely.place(x=5, y=5)
 
 if platform.system() != "Windows":
     abilitado = DISABLED
 else:
     abilitado = NORMAL
 
-show_cmd = customtkinter.CTkCheckBox(options_frame, text="Mostrar Console", variable=customtkinter.BooleanVar(value=config["Launcher"]["show_cmd"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346", state=abilitado)
+show_cmd = customtkinter.CTkCheckBox(options_frame, text="Mostrar Console", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Launcher"]["show_cmd"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346", state=abilitado)
 show_cmd.place(x=5, y=35)
 
 jav_arg = customtkinter.CTkEntry(options_frame, placeholder_text="Java Arguments", placeholder_text_color="#616161", font=("Arial", 14), text_color="#ffffff", height=30, width=130, border_width=0, corner_radius=15, bg_color="#272727", fg_color="#303030")
@@ -639,13 +677,13 @@ button_config.place(x=350, y=160)
 ver_lau = customtkinter.CTkLabel(main, text_color="#404040", text=f"v{lau_ver}")
 ver_lau.place(x=250, y=240)
 
-list = CTkListbox(main, hover_color="#21a346", highlight_color="#2fe964", height=160, border_width=0, fg_color="#272727")
+list = CTkListbox(main, hover_color="#21a346", text_color="#ffffff", highlight_color="#2fe964", height=160, border_width=0, fg_color="#272727")
 list.place(x=10, y=50)
 
 reload()
 
 def fechar():
-    config["Launcher"]["r_presence"] = str(dis_rich.get())
+    config["Launcher"]["ely.by"] = str(ely.get())
     config["Launcher"]["show_cmd"] = str(show_cmd.get())
     config["Launcher"]["jav_arguments"] = jav_arg.get()
     config["Account"]["name"] = str(User.get())
