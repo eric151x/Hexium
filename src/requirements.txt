@@ -1,0 +1,8 @@
+minecraft_launcher_lib
+customtkinter
+uuid
+configparser
+requests
+wget
+CTkListbox
+pypresence
