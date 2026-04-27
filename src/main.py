@@ -5,10 +5,10 @@ from CTkListbox import *
 from pypresence import Presence
 import shutil
 
-versao = 1.2
+versao = 1.3
 
 #Identifica se a versão é beta
-if False:
+if True:
     #Versão do launcher
     lau_ver = str(versao) + " " + "Beta"
 else:
@@ -41,7 +41,8 @@ if not os.path.isfile("./config.ini"):
     config["Config"] = {
         "check_atu": True,
         "local": False,
-        "r_presence": False
+        "r_presence": False,
+        "save_log": True
     }
     config.write(open("config.ini", "w"))
 
@@ -62,7 +63,7 @@ def latest_function():
         if float(lau_ver) < float(latest_version):
             atu_message = messagebox.askyesno("Nova atualização!", "Nova atualização Disponível! Deseja baixar?")
             if atu_message:
-                webbrowser.open("https://github.com/eric151x/Hexium/releases/tag/Alpha")
+                webbrowser.open("https://github.com/eric151x/Hexium/releases/latest")
     except:
         pass
 
@@ -170,38 +171,158 @@ def install():
 
     ver.mainloop()
 
+#Função de logar na conta Ely.by
+def login():
+    logar = customtkinter.CTk(fg_color="#1f1f1f")
+    logar.title("Login")
+    logar.geometry("300x180")
+    icone(logar)
+
+    def exit():
+        global access, request, username, uid
+        try:
+            logar.quit()
+            logar.destroy()
+            access = None
+            request = None
+            username = None
+            uid = None
+        except:
+            pass
+
+    def auth():
+        global access, request, username, uid
+        params = {
+            "username": name.get(),
+            "password": passwd.get(),
+            "clientToken": str(uuid.uuid4())
+        }
+        try:
+            r = requests.post("https://authserver.ely.by/auth/authenticate", json=params)
+            dados = r.json()
+            if "error" in dados:
+                messagebox.showerror("Erro!", dados["errorMessage"])
+                return
+        except Exception as e:
+            messagebox.showerror("Erro!", "Erro de conexão.")
+            return
+        access = dados["accessToken"]
+        request = dados["clientToken"]
+        username = dados["selectedProfile"]["name"]
+        uid = dados["selectedProfile"]["id"]
+        logar.quit()
+        logar.destroy()
+
+
+    text = customtkinter.CTkLabel(logar, text="Por favor entre na sua conta Ely.by. (pedirá suas credenciais somente uma vez e não irá salvar)", wraplength=280)
+    text.place(relx=0.5, y=10, anchor="n")
+
+    name = customtkinter.CTkEntry(
+        master=logar,
+        placeholder_text="Username",
+        placeholder_text_color="#616161",
+        font=("Arial", 14),
+        text_color="#ffffff",
+        height=30,
+        width=220,
+        border_width=0,
+        corner_radius=15,
+        bg_color="#1f1f1f",
+        fg_color="#303030"
+        )
+    name.place(relx=0.5, y=50, anchor="n")
+
+    passwd = customtkinter.CTkEntry(
+        master=logar,
+        placeholder_text="Senha",
+        placeholder_text_color="#616161",
+        font=("Arial", 14),
+        text_color="#ffffff",
+        height=30,
+        width=220,
+        border_width=0,
+        corner_radius=15,
+        bg_color="#1f1f1f",
+        fg_color="#303030"
+        )
+    passwd.place(relx=0.5, y=90, anchor="n")
+
+    logar_button = customtkinter.CTkButton(
+        master=logar,
+        text="Login",
+        font=("undefined", 14),
+        text_color="#000000",
+        hover=True,
+        hover_color="#21a346",
+        height=30,
+        width=95,
+        corner_radius=15,
+        bg_color="#1f1f1f",
+        fg_color="#2fe964",
+        command=auth
+        )
+    logar_button.place(x=160, y=130)
+
+    cancelar = customtkinter.CTkButton(
+        master=logar,
+        text="Cancelar",
+        font=("undefined", 14),
+        text_color="#ffffff",
+        hover=True,
+        hover_color="#222222",
+        height=30,
+        width=95,
+        corner_radius=15,
+        bg_color="#1f1f1f",
+        fg_color="#303030",
+        command=exit
+        )
+    cancelar.place(x=50, y=130)
+
+    logar.mainloop()
+    return access, request, username, uid
+
 #Função de executar o minecraft
 def start():
     versao = list.get(list.curselection())
-    args = f"-Djava.library.path={mc_dir}/versions/{versao}/natives" + " " + jav_arg.get()
+    natives = os.path.join(mc_dir, "versions", versao, "natives")    
+    args = f"-Djava.library.path={natives}" + " " + jav_arg.get()
+
+    if not versao:
+        messagebox.showerror("Erro!", "Selecione uma versão!")
+        return
 
     try:
-        shutil.rmtree(f"{mc_dir}/versions/{versao}/natives")
+        shutil.rmtree(natives)
     except:
         pass
-    minecraft_launcher_lib.natives.extract_natives(versao, mc_dir, f"{mc_dir}/versions/{versao}/natives")
+    minecraft_launcher_lib.natives.extract_natives(versao, mc_dir, natives)
 
     if User.get() == "":
         aviso = messagebox.askyesno("Aviso!", "Você não colocou nenhum Nome, quer continuar?")
         if not aviso:
             return
 
-    if not versao:
-        messagebox.showerror("Erro!", "Selecione uma versão!")
-        return
-
     if ely.get():
         #Baixa caso o authlib injector não esteja baixado
         if not os.path.exists("authlib-injector-1.2.7.jar"):
             wget.download("https://authlib-injector.yushi.moe/artifact/55/authlib-injector-1.2.7.jar", "authlib-injector-1.2.7.jar")
 
-        #recebe o uuid pelo username
-        uid_ely = requests.get(f"https://authserver.ely.by/api/users/profiles/minecraft/{User.get()}")
-
-        if uid_ely.json()["id"]:
-            uid = uid_ely.json()["id"]
+        if not config["Account"].get("access"):
+            access, client, name, uid = login()
+            if access:
+                config["Account"]["access"] = access
+                config["Account"]["client"] = client
+                config["Account"]["name_ely"] = name
+                config["Account"]["uuid_ely"] = uid
+                config.write(open("config.ini", "w"))
+            else:
+                return
         else:
-            uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
+            access = config["Account"]["access"]
+            client = config["Account"]["client"]
+            name = config["Account"]["name_ely"]
+            uid = config["Account"]["uuid_ely"]
         
         #Adiciona o argumento authlib injector
         ely_arg = "-javaagent:authlib-injector-1.2.7.jar=ely.by" + " " + args
@@ -209,11 +330,13 @@ def start():
     #UUID
     if not ely.get():
         uid = str(uuid.uuid3(uuid.NAMESPACE_DNS, User.get())).replace("-", "")
+        name = User.get()
+        access = ""
 
     #Opções
-    option = {"username": User.get(),
+    option = {"username": name,
                "uuid": uid,
-               "token": "",
+               "token": access,
                "launcher_name": "Hexium",
                "launcher_version": str(lau_ver),
                }
@@ -229,13 +352,11 @@ def start():
     command = minecraft_launcher_lib.command.get_minecraft_command(version=versao, minecraft_directory=mc_dir, options=option)
     main.withdraw()
 
-    if User.get() != "":
-        nome = User.get()
-    else:
+    if not User.get() and not ely.get():
         nome = "Nenhum Nome"
 
     #Rich Presence
-    if config["Config"]["r_presence"]:
+    if config["Config"]["r_presence"] == "True":
         try:
             RPC.connect()
             RPC.update(
@@ -250,18 +371,33 @@ def start():
 
     #Iniciar o Minecraft
     if platform.system() == "Windows" and not show_cmd.get():
-        processo = subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW)
+        processo = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     else:
-        processo = subprocess.Popen(command)
+        processo = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     processo.wait()
 
-    if config["Config"]["r_presence"]:
-        try:
-            RPC.clear()
-        except:
-            pass
-    shutil.rmtree(f"{mc_dir}/versions/{versao}/natives")
+    #Salvar no log
+    if config["Config"]["save_log"] == "True":
+        stdout, stderr = processo.communicate()
+        with open("log.txt", "w") as f:
+            if stdout:
+                f.write("===STDOUT===\n")
+                f.write(stdout)
+            if stderr:
+                f.write("===STDERR===\n")
+                f.write(stderr)
+
+    try:
+        RPC.clear()
+    except:
+        pass
+
+    try:
+        shutil.rmtree(natives)
+    except:
+        pass
+
     main.deiconify()
 
 def instance():
@@ -433,7 +569,7 @@ def delete_version():
     delver.geometry("300x120")
     icone(delver)
 
-    widlabel = customtkinter.CTkLabel(delver, text=f"Você tem certeza que quer apagar {list.get()}?")
+    widlabel = customtkinter.CTkLabel(delver, text=f"Você tem certeza que quer apagar {list.get()}?", wraplength=280)
     widlabel.place(relx=0.5, y=10, anchor="n")
 
     deletar = customtkinter.CTkButton(
@@ -470,12 +606,39 @@ def delete_version():
 
     delver.mainloop()
 
+def desconect_conta_ely():
+    yesorno = messagebox.askokcancel("Cuidado!", "Você quer desconectar sua conta Ely.By?")
+    if yesorno:
+        if config.has_option("Account", "access"):
+            params = {
+                "accessToken": config["Account"]["access"],
+                "clientToken": config["Account"]["client"]
+            }
+            r = requests.post("https://authserver.ely.by/auth/invalidate", json=params)
+
+            config.remove_option("Account", "access")
+            config.remove_option("Account", "client")
+            config.remove_option("Account", "name_ely")
+            config.remove_option("Account", "uuid_ely")
+
+            config.write(open("config.ini", "w"))
+
+            messagebox.showinfo("Pronto!", "Conta desconectada com sucesso!")
+        else:
+            messagebox.showerror("Erro!", "Nenhuma conta logada.")
+
 def win_config():
     def save_config():
         config["Config"]["r_presence"] = str(dis_rich.get())
         config["Config"]["local"] = str(local_button.get())
         config["Config"]["check_atu"] = str(check_atu.get())
+        config["Config"]["save_log"] = str(log_check.get())
         config.write(open("config.ini", "w"))
+        config_tk.quit()
+        config_tk.destroy()
+
+    def quit():
+        config_tk.quit()
         config_tk.destroy()
 
     config_tk = customtkinter.CTk(fg_color="#1f1f1f")
@@ -491,6 +654,9 @@ def win_config():
 
     dis_rich = customtkinter.CTkCheckBox(config_tk, text="Rich Presence", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Config"]["r_presence"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
     dis_rich.place(x=10, y=110)
+
+    log_check = customtkinter.CTkCheckBox(config_tk, text="Salvar Log", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Config"]["save_log"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+    log_check.place(x=10, y=140)
 
     save = customtkinter.CTkButton(
     master=config_tk,
@@ -508,6 +674,22 @@ def win_config():
     )
     save.place(x=290, y=260)
 
+    cancel = customtkinter.CTkButton(
+        master=config_tk,
+        text="Cancelar",
+        font=("undefined", 14),
+        text_color="#ffffff",
+        hover=True,
+        hover_color="#222222",
+        height=30,
+        width=100,
+        corner_radius=15,
+        bg_color="#1f1f1f",
+        fg_color="#303030",
+        command=quit
+        )
+    cancel.place(x=180, y=260)
+
     check_now = customtkinter.CTkButton(
     master=config_tk,
     text="Verificar atualização agora",
@@ -524,7 +706,31 @@ def win_config():
     )
     check_now.place(x=10, y=40)
 
+    delete_ely = customtkinter.CTkButton(
+    master=config_tk,
+    text="Desconectar conta Ely.By",
+    font=("undefined", 14),
+    text_color="#000000",
+    hover=True,
+    hover_color="#21a346",
+    height=30,
+    width=100,
+    corner_radius=15,
+    bg_color="#1f1f1f",
+    fg_color="#2fe964",
+    command=desconect_conta_ely
+    )
+    delete_ely.place(x=10, y=170)
+
     config_tk.mainloop()
+
+def toggle():
+    if ely.get():
+        User.configure(state="disabled")
+        User.configure(fg_color="#101010")
+    else:
+        User.configure(state="normal")
+        User.configure(fg_color="#303030")
 
 main = customtkinter.CTk(fg_color="#1f1f1f")
 main.title("Hexium")
@@ -642,8 +848,10 @@ menos.place(x=290, y=10)
 options_frame = customtkinter.CTkFrame(main, fg_color="#272727", height=100, width=140)
 options_frame.place(x=350, y=50)
 
-ely = customtkinter.CTkCheckBox(options_frame, text="Ely.by", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Launcher"]["ely.by"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346")
+ely = customtkinter.CTkCheckBox(options_frame, text="Ely.by", text_color="#ffffff", variable=customtkinter.BooleanVar(value=config["Launcher"]["ely.by"]), onvalue=True, offvalue=False, fg_color="#2fe964", hover=True, hover_color="#21a346", command=toggle)
 ely.place(x=5, y=5)
+
+toggle()
 
 if platform.system() != "Windows":
     abilitado = DISABLED
